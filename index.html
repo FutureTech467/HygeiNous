@@ -20,7 +20,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}
 .screen{display:none;flex:1;flex-direction:column}
 .screen.active{display:flex}
-/* ONBOARD */
 .onboard-content{padding:36px 24px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
 .onboard-hero{text-align:center;margin-bottom:32px}
 .onboard-hero h1{font-family:'DM Serif Display',serif;font-size:30px;line-height:1.2;margin-bottom:10px}
@@ -33,7 +32,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .form-group textarea{height:72px}
 .btn-primary{width:100%;background:linear-gradient(135deg,var(--accent),#00b894);color:#0a0f1e;border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:8px;box-shadow:0 4px 20px rgba(0,212,170,0.25)}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,212,170,0.35)}
-/* HOME */
 .home-scroll{padding:20px 24px;flex:1;overflow-y:auto}
 .greeting{margin-bottom:22px}
 .greeting-sub{font-size:13px;color:var(--muted);margin-bottom:3px}
@@ -50,7 +48,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px}
 .emergency-btn{width:100%;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;border-radius:14px;padding:16px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:22px;box-shadow:0 4px 20px rgba(239,68,68,0.25);transition:all 0.2s}
 .emergency-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(239,68,68,0.35)}
-/* MEDS */
 .meds-scroll{padding:20px 24px;flex:1;overflow-y:auto}
 .med-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;transition:border-color 0.2s}
 .med-card:hover{border-color:rgba(59,130,246,0.3)}
@@ -65,7 +62,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .mark-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;transition:all 0.2s}
 .mark-btn:hover{border-color:var(--accent);color:var(--accent)}
 .mark-btn.done{border-color:var(--accent);color:var(--accent);background:rgba(0,212,170,0.08)}
-/* SYMPTOM */
 .symptom-scroll{padding:20px 24px;flex:1;overflow-y:auto}
 .sym-header{margin-bottom:20px}
 .sym-header h3{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:5px}
@@ -88,7 +84,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .sym-result{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;display:none;line-height:1.6;font-size:14px}
 .sym-result.visible{display:block}
 .sym-result-header{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px}
-/* CHAT */
 .chat-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .chat-header-bar{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 .chat-title-txt{font-weight:600;font-size:15px}
@@ -114,7 +109,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .send-btn{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),#00b894);border:none;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all 0.2s;flex-shrink:0}
 .send-btn:hover{transform:scale(1.05)}
 .send-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
-/* PROFILE */
 .profile-scroll{padding:24px;flex:1;overflow-y:auto}
 .profile-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px}
 .profile-card h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px}
@@ -124,7 +118,6 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .p-val{font-weight:500;text-align:right;max-width:60%}
 .btn-ghost{width:100%;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:14px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;transition:all 0.2s}
 .btn-ghost:hover{border-color:var(--danger);color:#f87171}
-/* NAV */
 .bottom-nav{display:flex;border-top:1px solid var(--border);background:rgba(10,15,30,0.95);backdrop-filter:blur(10px);padding:6px 0 10px}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px;cursor:pointer;transition:color 0.2s;color:var(--muted);border:none;background:none;font-family:'DM Sans',sans-serif}
 .nav-item.active{color:var(--accent)}
@@ -292,6 +285,8 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <script>
 let userData=null,chatHistory=[],takenMeds={},selectedSymptoms=[],selectedSeverity='';
 
+const PROXY_URL='https://medimind-proxy.medimind467.workers.dev';
+
 window.onload=()=>{
   try{const s=sessionStorage.getItem('mm_user');if(s){userData=JSON.parse(s);takenMeds=JSON.parse(sessionStorage.getItem('mm_taken')||'{}');initApp()}}catch(e){}
 };
@@ -344,7 +339,6 @@ function markTaken(id){
   if(badge){badge.className='badge taken';badge.textContent='✓ Taken'}
   const card=document.getElementById('card_'+id);
   if(card){const btn=card.querySelector('.mark-btn');if(btn)btn.remove()}
-  const total=Object.keys(userData.medications.split('\n').filter(l=>l.trim())).length||1;
   const pct=Math.round((Object.keys(takenMeds).length/Math.max(userData.medications.split('\n').filter(l=>l.trim()).length,1))*100);
   document.getElementById('v-adh').textContent=Math.min(pct+60,99);
 }
@@ -377,13 +371,19 @@ Rules: Address by first name warmly. Simple plain language. Never diagnose. Alwa
 }
 
 async function callAI(messages,system){
-  const res=await fetch('https://api.anthropic.com/v1/messages',{
+  const sys=system||buildSystem();
+  const contents=messages.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+  const res=await fetch(PROXY_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:system||buildSystem(),messages})
+    body:JSON.stringify({
+      system_instruction:{parts:[{text:sys}]},
+      contents,
+      generationConfig:{maxOutputTokens:1000}
+    })
   });
   const data=await res.json();
-  return data.content?.[0]?.text||'Sorry, I could not process that.';
+  return data.candidates?.[0]?.content?.parts?.[0]?.text||'Sorry, I could not process that.';
 }
 
 async function loadHomeSummary(){
