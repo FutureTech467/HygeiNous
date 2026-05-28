@@ -3,1047 +3,479 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MediMind AI — Your Health Companion</title>
+<title>MediMind AI</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0f1e;
-    --surface: #111827;
-    --surface2: #1a2236;
-    --accent: #00d4aa;
-    --accent2: #3b82f6;
-    --danger: #ef4444;
-    --text: #e8edf5;
-    --muted: #6b7a99;
-    --border: rgba(255,255,255,0.08);
-    --glow: rgba(0, 212, 170, 0.15);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Background grid */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: 
-      linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .app {
-    position: relative;
-    z-index: 1;
-    max-width: 480px;
-    margin: 0 auto;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* HEADER */
-  .header {
-    padding: 20px 24px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    backdrop-filter: blur(10px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(10,15,30,0.9);
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .logo-icon {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    box-shadow: 0 0 20px var(--glow);
-  }
-
-  .logo-text {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .status-dot {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--accent);
-    font-weight: 500;
-  }
-
-  .dot {
-    width: 8px;
-    height: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-    box-shadow: 0 0 8px var(--accent);
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  /* SCREENS */
-  .screen { display: none; flex: 1; flex-direction: column; }
-  .screen.active { display: flex; }
-
-  /* ONBOARDING */
-  .onboard-content {
-    padding: 40px 24px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .onboard-hero {
-    text-align: center;
-    margin-bottom: 40px;
-    animation: fadeUp 0.6s ease;
-  }
-
-  .onboard-hero h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 32px;
-    line-height: 1.2;
-    margin-bottom: 12px;
-  }
-
-  .onboard-hero h1 span { color: var(--accent); }
-
-  .onboard-hero p {
-    color: var(--muted);
-    font-size: 15px;
-    line-height: 1.6;
-  }
-
-  .form-group {
-    margin-bottom: 16px;
-    animation: fadeUp 0.6s ease;
-  }
-
-  .form-group label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-
-  .form-group input, .form-group textarea, .form-group select {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    resize: none;
-  }
-
-  .form-group input:focus, .form-group textarea:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--glow);
-  }
-
-  .form-group textarea { height: 80px; }
-
-  .btn-primary {
-    width: 100%;
-    background: linear-gradient(135deg, var(--accent), #00b894);
-    color: #0a0f1e;
-    border: none;
-    border-radius: 14px;
-    padding: 16px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 8px;
-    box-shadow: 0 4px 20px rgba(0,212,170,0.3);
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 30px rgba(0,212,170,0.4);
-  }
-
-  /* MAIN DASHBOARD */
-  .dashboard { padding: 20px 24px; flex: 1; overflow-y: auto; }
-
-  .greeting {
-    margin-bottom: 24px;
-    animation: fadeUp 0.4s ease;
-  }
-
-  .greeting-sub {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 4px;
-  }
-
-  .greeting h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 26px;
-  }
-
-  .greeting h2 span { color: var(--accent); }
-
-  /* VITALS */
-  .vitals-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .vital-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px;
-    transition: border-color 0.2s;
-    animation: fadeUp 0.5s ease;
-  }
-
-  .vital-card:hover { border-color: rgba(0,212,170,0.3); }
-
-  .vital-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-
-  .vital-value {
-    font-family: 'DM Serif Display', serif;
-    font-size: 28px;
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-
-  .vital-value.ok { color: var(--accent); }
-  .vital-value.warn { color: #f59e0b; }
-
-  .vital-unit {
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  /* MEDICATIONS */
-  .section-title {
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
-
-  .med-list { margin-bottom: 24px; }
-
-  .med-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    animation: fadeUp 0.5s ease;
-    transition: border-color 0.2s;
-  }
-
-  .med-item:hover { border-color: rgba(59,130,246,0.4); }
-
-  .med-info { flex: 1; }
-
-  .med-name {
-    font-weight: 600;
-    font-size: 15px;
-    margin-bottom: 3px;
-  }
-
-  .med-time {
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .med-badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-
-  .med-badge.due {
-    background: rgba(239,68,68,0.15);
-    color: var(--danger);
-    border: 1px solid rgba(239,68,68,0.3);
-  }
-
-  .med-badge.taken {
-    background: rgba(0,212,170,0.1);
-    color: var(--accent);
-    border: 1px solid rgba(0,212,170,0.2);
-  }
-
-  .med-badge.upcoming {
-    background: rgba(59,130,246,0.1);
-    color: var(--accent2);
-    border: 1px solid rgba(59,130,246,0.2);
-  }
-
-  /* QUICK ACTIONS */
-  .quick-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .action-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .action-btn:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 20px var(--glow);
-    transform: translateY(-2px);
-  }
-
-  .action-icon { font-size: 24px; margin-bottom: 8px; }
-  .action-label { font-size: 13px; font-weight: 500; }
-
-  /* CHAT */
-  .chat-screen { flex: 1; display: flex; flex-direction: column; }
-
-  .chat-header {
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .back-btn {
-    background: none;
-    border: none;
-    color: var(--accent);
-    font-size: 20px;
-    cursor: pointer;
-    padding: 4px;
-  }
-
-  .chat-title { font-weight: 600; font-size: 16px; }
-  .chat-sub { font-size: 12px; color: var(--muted); }
-
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-height: calc(100vh - 280px);
-  }
-
-  .msg {
-    max-width: 85%;
-    animation: fadeUp 0.3s ease;
-  }
-
-  .msg.user { align-self: flex-end; }
-  .msg.ai { align-self: flex-start; }
-
-  .msg-bubble {
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  .msg.user .msg-bubble {
-    background: linear-gradient(135deg, var(--accent), #00b894);
-    color: #0a0f1e;
-    font-weight: 500;
-    border-bottom-right-radius: 4px;
-  }
-
-  .msg.ai .msg-bubble {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-bottom-left-radius: 4px;
-  }
-
-  .msg-time {
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 4px;
-    padding: 0 4px;
-  }
-
-  .msg.user .msg-time { text-align: right; }
-
-  .typing-indicator {
-    display: none;
-    align-self: flex-start;
-    padding: 12px 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    border-bottom-left-radius: 4px;
-    gap: 4px;
-    align-items: center;
-  }
-
-  .typing-indicator.visible { display: flex; }
-
-  .typing-dot {
-    width: 7px;
-    height: 7px;
-    background: var(--muted);
-    border-radius: 50%;
-    animation: typingBounce 1.2s infinite;
-  }
-
-  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-  @keyframes typingBounce {
-    0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-6px); }
-  }
-
-  .chat-input-area {
-    padding: 16px 24px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-    background: rgba(10,15,30,0.95);
-    backdrop-filter: blur(10px);
-  }
-
-  .chat-input {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 12px 16px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    outline: none;
-    resize: none;
-    max-height: 120px;
-    transition: border-color 0.2s;
-  }
-
-  .chat-input:focus { border-color: var(--accent); }
-
-  .send-btn {
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, var(--accent), #00b894);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    transition: all 0.2s;
-    flex-shrink: 0;
-    box-shadow: 0 4px 15px rgba(0,212,170,0.3);
-  }
-
-  .send-btn:hover { transform: scale(1.05); }
-  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-  /* EMERGENCY */
-  .emergency-btn {
-    width: 100%;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
-    border: none;
-    border-radius: 14px;
-    padding: 16px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 20px rgba(239,68,68,0.3);
-    animation: fadeUp 0.6s ease;
-    transition: all 0.2s;
-  }
-
-  .emergency-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 30px rgba(239,68,68,0.4);
-  }
-
-  /* NAV */
-  .bottom-nav {
-    display: flex;
-    border-top: 1px solid var(--border);
-    background: rgba(10,15,30,0.95);
-    backdrop-filter: blur(10px);
-    padding: 8px 0 12px;
-  }
-
-  .nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px;
-    cursor: pointer;
-    transition: color 0.2s;
-    color: var(--muted);
-    border: none;
-    background: none;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .nav-item.active { color: var(--accent); }
-  .nav-item:hover { color: var(--text); }
-  .nav-icon { font-size: 22px; }
-  .nav-label { font-size: 10px; font-weight: 500; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* API KEY NOTICE */
-  .api-notice {
-    background: rgba(59,130,246,0.1);
-    border: 1px solid rgba(59,130,246,0.3);
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 13px;
-    color: var(--accent2);
-    margin-bottom: 16px;
-    display: none;
-  }
-
-  /* PROFILE SCREEN */
-  .profile-content { padding: 24px; flex: 1; overflow-y: auto; }
-
-  .profile-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
-    animation: fadeUp 0.4s ease;
-  }
-
-  .profile-card h3 {
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
-
-  .profile-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-  }
-
-  .profile-row:last-child { border-bottom: none; }
-  .profile-row-label { color: var(--muted); }
-  .profile-row-value { font-weight: 500; }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+:root{--bg:#0a0f1e;--surface:#111827;--accent:#00d4aa;--accent2:#3b82f6;--danger:#ef4444;--warn:#f59e0b;--text:#e8edf5;--muted:#6b7a99;--border:rgba(255,255,255,0.08);--glow:rgba(0,212,170,0.12)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,170,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,170,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.header{padding:18px 24px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100;background:rgba(10,15,30,0.92)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.logo-text{font-family:'DM Serif Display',serif;font-size:19px;letter-spacing:-0.5px;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.status-dot{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);font-weight:500}
+.dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;box-shadow:0 0 6px var(--accent)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}
+.screen{display:none;flex:1;flex-direction:column}
+.screen.active{display:flex}
+/* ONBOARD */
+.onboard-content{padding:36px 24px;flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.onboard-hero{text-align:center;margin-bottom:32px}
+.onboard-hero h1{font-family:'DM Serif Display',serif;font-size:30px;line-height:1.2;margin-bottom:10px}
+.onboard-hero h1 span{color:var(--accent)}
+.onboard-hero p{color:var(--muted);font-size:14px;line-height:1.6}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px}
+.form-group input,.form-group textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 15px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;resize:none}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.form-group textarea{height:72px}
+.btn-primary{width:100%;background:linear-gradient(135deg,var(--accent),#00b894);color:#0a0f1e;border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:8px;box-shadow:0 4px 20px rgba(0,212,170,0.25)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,212,170,0.35)}
+/* HOME */
+.home-scroll{padding:20px 24px;flex:1;overflow-y:auto}
+.greeting{margin-bottom:22px}
+.greeting-sub{font-size:13px;color:var(--muted);margin-bottom:3px}
+.greeting h2{font-family:'DM Serif Display',serif;font-size:26px}
+.greeting h2 span{color:var(--accent)}
+.vitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.vital-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:15px;transition:border-color 0.2s}
+.vital-card:hover{border-color:rgba(0,212,170,0.25)}
+.vital-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px}
+.vital-value{font-family:'DM Serif Display',serif;font-size:28px;line-height:1;margin-bottom:3px}
+.vital-value.ok{color:var(--accent)}
+.vital-value.warn{color:var(--warn)}
+.vital-unit{font-size:11px;color:var(--muted)}
+.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px}
+.emergency-btn{width:100%;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;border-radius:14px;padding:16px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:22px;box-shadow:0 4px 20px rgba(239,68,68,0.25);transition:all 0.2s}
+.emergency-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(239,68,68,0.35)}
+/* MEDS */
+.meds-scroll{padding:20px 24px;flex:1;overflow-y:auto}
+.med-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;transition:border-color 0.2s}
+.med-card:hover{border-color:rgba(59,130,246,0.3)}
+.med-left{flex:1}
+.med-name{font-weight:600;font-size:15px;margin-bottom:3px}
+.med-detail{font-size:12px;color:var(--muted)}
+.med-status{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.due{background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.25)}
+.badge.taken{background:rgba(0,212,170,0.1);color:var(--accent);border:1px solid rgba(0,212,170,0.2)}
+.badge.upcoming{background:rgba(59,130,246,0.1);color:#60a5fa;border:1px solid rgba(59,130,246,0.2)}
+.mark-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;transition:all 0.2s}
+.mark-btn:hover{border-color:var(--accent);color:var(--accent)}
+.mark-btn.done{border-color:var(--accent);color:var(--accent);background:rgba(0,212,170,0.08)}
+/* SYMPTOM */
+.symptom-scroll{padding:20px 24px;flex:1;overflow-y:auto}
+.sym-header{margin-bottom:20px}
+.sym-header h3{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:5px}
+.sym-header p{font-size:13px;color:var(--muted);line-height:1.5}
+.symptom-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.sym-btn{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 10px;cursor:pointer;text-align:center;transition:all 0.2s;color:var(--text);font-family:'DM Sans',sans-serif}
+.sym-btn:hover{border-color:rgba(0,212,170,0.3);background:rgba(0,212,170,0.05)}
+.sym-btn.selected{border-color:var(--accent);background:rgba(0,212,170,0.1);color:var(--accent)}
+.sym-icon{font-size:22px;margin-bottom:6px}
+.sym-label{font-size:12px;font-weight:500}
+.severity-row{margin-bottom:18px}
+.severity-label{font-size:12px;color:var(--muted);margin-bottom:8px}
+.severity-btns{display:flex;gap:8px}
+.sev-btn{flex:1;padding:8px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;text-align:center}
+.sev-btn.mild.selected{border-color:#22c55e;background:rgba(34,197,94,0.1);color:#4ade80}
+.sev-btn.moderate.selected{border-color:var(--warn);background:rgba(245,158,11,0.1);color:#fbbf24}
+.sev-btn.severe.selected{border-color:var(--danger);background:rgba(239,68,68,0.1);color:#f87171}
+.sym-notes{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;resize:none;height:70px;margin-bottom:16px;transition:border-color 0.2s}
+.sym-notes:focus{border-color:var(--accent)}
+.sym-result{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:16px;display:none;line-height:1.6;font-size:14px}
+.sym-result.visible{display:block}
+.sym-result-header{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px}
+/* CHAT */
+.chat-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.chat-header-bar{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.chat-title-txt{font-weight:600;font-size:15px}
+.chat-sub-txt{font-size:11px;color:var(--muted)}
+.chat-msgs{flex:1;overflow-y:auto;padding:18px 24px;display:flex;flex-direction:column;gap:14px}
+.msg{max-width:85%}
+.msg.user{align-self:flex-end}
+.msg.ai{align-self:flex-start}
+.msg-bubble{padding:11px 15px;border-radius:18px;font-size:14px;line-height:1.5}
+.msg.user .msg-bubble{background:linear-gradient(135deg,var(--accent),#00b894);color:#0a0f1e;font-weight:500;border-bottom-right-radius:4px}
+.msg.ai .msg-bubble{background:var(--surface);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px}
+.msg-time{font-size:10px;color:var(--muted);margin-top:3px;padding:0 4px}
+.msg.user .msg-time{text-align:right}
+.typing{display:none;align-self:flex-start;padding:11px 15px;background:var(--surface);border:1px solid var(--border);border-radius:18px;border-bottom-left-radius:4px;gap:4px;align-items:center}
+.typing.on{display:flex}
+.tdot{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:tb 1.2s infinite}
+.tdot:nth-child(2){animation-delay:0.2s}
+.tdot:nth-child(3){animation-delay:0.4s}
+@keyframes tb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.chat-input-row{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;background:rgba(10,15,30,0.95);backdrop-filter:blur(10px)}
+.chat-inp{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;resize:none;max-height:100px;transition:border-color 0.2s}
+.chat-inp:focus{border-color:var(--accent)}
+.send-btn{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),#00b894);border:none;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all 0.2s;flex-shrink:0}
+.send-btn:hover{transform:scale(1.05)}
+.send-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+/* PROFILE */
+.profile-scroll{padding:24px;flex:1;overflow-y:auto}
+.profile-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px}
+.profile-card h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px}
+.p-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px}
+.p-row:last-child{border-bottom:none}
+.p-lbl{color:var(--muted)}
+.p-val{font-weight:500;text-align:right;max-width:60%}
+.btn-ghost{width:100%;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:14px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;transition:all 0.2s}
+.btn-ghost:hover{border-color:var(--danger);color:#f87171}
+/* NAV */
+.bottom-nav{display:flex;border-top:1px solid var(--border);background:rgba(10,15,30,0.95);backdrop-filter:blur(10px);padding:6px 0 10px}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px;cursor:pointer;transition:color 0.2s;color:var(--muted);border:none;background:none;font-family:'DM Sans',sans-serif}
+.nav-item.active{color:var(--accent)}
+.nav-item:hover{color:var(--text)}
+.nav-icon{font-size:21px}
+.nav-label{font-size:10px;font-weight:500}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fade{animation:fadeUp 0.35s ease}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 </style>
 </head>
 <body>
-
 <div class="app">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="logo">
-      <div class="logo-icon">🧠</div>
-      <span class="logo-text">MediMind AI</span>
-    </div>
-    <div class="status-dot">
-      <div class="dot"></div>
-      <span>Active</span>
-    </div>
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🧠</div>
+    <span class="logo-text">MediMind AI</span>
   </div>
-
-  <!-- ONBOARDING SCREEN -->
-  <div class="screen active" id="screen-onboard">
-    <div class="onboard-content">
-      <div class="onboard-hero">
-        <h1>Your intelligent<br><span>health companion</span></h1>
-        <p>Personalized AI care that knows your history, reminds your medications, and is always there.</p>
-      </div>
-
-      <div class="form-group">
-        <label>Your Name</label>
-        <input type="text" id="inp-name" placeholder="e.g. Kamani Perera" />
-      </div>
-
-      <div class="form-group">
-        <label>Age</label>
-        <input type="number" id="inp-age" placeholder="e.g. 68" />
-      </div>
-
-      <div class="form-group">
-        <label>Medical Conditions</label>
-        <textarea id="inp-conditions" placeholder="e.g. Type 2 Diabetes, Hypertension"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Current Medications</label>
-        <textarea id="inp-medications" placeholder="e.g. Metformin 500mg (morning), Amlodipine 5mg (night)"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Emergency Contact</label>
-        <input type="text" id="inp-emergency" placeholder="e.g. Son - 0771234567" />
-      </div>
-
-      <button class="btn-primary" onclick="startApp()">Begin My Health Journey →</button>
-    </div>
-  </div>
-
-  <!-- HOME SCREEN -->
-  <div class="screen" id="screen-home">
-    <div class="dashboard">
-
-      <div class="greeting">
-        <div class="greeting-sub" id="greeting-time">Good morning</div>
-        <h2>Hello, <span id="user-name-display">there</span> 👋</h2>
-      </div>
-
-      <!-- VITALS -->
-      <div class="section-title">Today's Vitals</div>
-      <div class="vitals-grid">
-        <div class="vital-card">
-          <div class="vital-label">❤️ Heart Rate</div>
-          <div class="vital-value ok">72</div>
-          <div class="vital-unit">bpm · Normal</div>
-        </div>
-        <div class="vital-card">
-          <div class="vital-label">🩸 Blood O₂</div>
-          <div class="vital-value ok">98</div>
-          <div class="vital-unit">% · Normal</div>
-        </div>
-        <div class="vital-card">
-          <div class="vital-label">🌡️ Temperature</div>
-          <div class="vital-value warn">37.2</div>
-          <div class="vital-unit">°C · Normal</div>
-        </div>
-        <div class="vital-card">
-          <div class="vital-label">💊 Adherence</div>
-          <div class="vital-value ok">85</div>
-          <div class="vital-unit">% · This week</div>
-        </div>
-      </div>
-
-      <!-- MEDICATIONS -->
-      <div class="section-title">Medication Schedule</div>
-      <div class="med-list" id="med-list">
-        <!-- populated by JS -->
-      </div>
-
-      <!-- EMERGENCY -->
-      <button class="emergency-btn" onclick="triggerEmergency()">
-        🚨 Emergency Alert
-      </button>
-
-      <!-- QUICK ACTIONS -->
-      <div class="section-title">Quick Actions</div>
-      <div class="quick-actions">
-        <button class="action-btn" onclick="goToChat('How am I doing health-wise today?')">
-          <div class="action-icon">💬</div>
-          <div class="action-label">Ask MediMind</div>
-        </button>
-        <button class="action-btn" onclick="goToChat('What are my medications today and when should I take them?')">
-          <div class="action-icon">💊</div>
-          <div class="action-label">Med Reminder</div>
-        </button>
-        <button class="action-btn" onclick="goToChat('I am feeling some chest discomfort. What should I do?')">
-          <div class="action-icon">🫀</div>
-          <div class="action-label">Symptom Check</div>
-        </button>
-        <button class="action-btn" onclick="goToChat('Can you suggest a specialist near Colombo for my condition?')">
-          <div class="action-icon">🏥</div>
-          <div class="action-label">Find Specialist</div>
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- CHAT SCREEN -->
-  <div class="screen" id="screen-chat">
-    <div class="chat-screen">
-      <div class="chat-header">
-        <button class="back-btn" onclick="goToHome()">←</button>
-        <div>
-          <div class="chat-title">MediMind Assistant</div>
-          <div class="chat-sub">AI-powered health companion</div>
-        </div>
-      </div>
-
-      <div class="chat-messages" id="chat-messages">
-        <!-- messages here -->
-      </div>
-
-      <div class="typing-indicator" id="typing">
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-      </div>
-
-      <div class="chat-input-area">
-        <textarea class="chat-input" id="chat-input" placeholder="Ask about your health..." rows="1"
-          onkeydown="handleKey(event)"></textarea>
-        <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- PROFILE SCREEN -->
-  <div class="screen" id="screen-profile">
-    <div class="profile-content">
-      <div class="greeting" style="margin-bottom:20px">
-        <div class="greeting-sub">Your health profile</div>
-        <h2 style="font-family:'DM Serif Display',serif;font-size:26px">My Profile</h2>
-      </div>
-
-      <div class="profile-card">
-        <h3>Personal Details</h3>
-        <div class="profile-row">
-          <span class="profile-row-label">Name</span>
-          <span class="profile-row-value" id="profile-name">—</span>
-        </div>
-        <div class="profile-row">
-          <span class="profile-row-label">Age</span>
-          <span class="profile-row-value" id="profile-age">—</span>
-        </div>
-        <div class="profile-row">
-          <span class="profile-row-label">Emergency Contact</span>
-          <span class="profile-row-value" id="profile-emergency">—</span>
-        </div>
-      </div>
-
-      <div class="profile-card">
-        <h3>Medical Conditions</h3>
-        <div id="profile-conditions" style="font-size:14px;line-height:1.6;color:var(--text)">—</div>
-      </div>
-
-      <div class="profile-card">
-        <h3>Medications</h3>
-        <div id="profile-medications" style="font-size:14px;line-height:1.6;color:var(--text)">—</div>
-      </div>
-
-      <button class="btn-primary" onclick="resetApp()" style="background:var(--surface);color:var(--muted);box-shadow:none;border:1px solid var(--border);">
-        Reset Profile
-      </button>
-    </div>
-  </div>
-
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav" id="bottom-nav" style="display:none">
-    <button class="nav-item active" id="nav-home" onclick="switchTab('home')">
-      <span class="nav-icon">🏠</span>
-      <span class="nav-label">Home</span>
-    </button>
-    <button class="nav-item" id="nav-chat" onclick="switchTab('chat')">
-      <span class="nav-icon">💬</span>
-      <span class="nav-label">Chat</span>
-    </button>
-    <button class="nav-item" id="nav-profile" onclick="switchTab('profile')">
-      <span class="nav-icon">👤</span>
-      <span class="nav-label">Profile</span>
-    </button>
-  </nav>
-
+  <div class="status-dot"><div class="dot"></div><span>Active</span></div>
 </div>
 
+<!-- ONBOARD -->
+<div class="screen active" id="screen-onboard">
+  <div class="onboard-content">
+    <div class="onboard-hero fade">
+      <h1>Your intelligent<br><span>health companion</span></h1>
+      <p>Personalized AI care that knows your history, reminds your medications, and is always there.</p>
+    </div>
+    <div class="form-group"><label>Your Name</label><input type="text" id="inp-name" placeholder="e.g. Kamani Perera"/></div>
+    <div class="form-group"><label>Age</label><input type="number" id="inp-age" placeholder="e.g. 68"/></div>
+    <div class="form-group"><label>Medical Conditions</label><textarea id="inp-conditions" placeholder="e.g. Type 2 Diabetes, Hypertension"></textarea></div>
+    <div class="form-group"><label>Current Medications (one per line)</label><textarea id="inp-medications" placeholder="e.g. Metformin 500mg&#10;Amlodipine 5mg"></textarea></div>
+    <div class="form-group"><label>Emergency Contact</label><input type="text" id="inp-emergency" placeholder="e.g. Son - 0771234567"/></div>
+    <button class="btn-primary" onclick="startApp()">Begin My Health Journey →</button>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="screen-home">
+  <div class="home-scroll">
+    <div class="greeting fade">
+      <div class="greeting-sub" id="greeting-time">Good morning</div>
+      <h2>Hello, <span id="user-name-display">there</span> 👋</h2>
+    </div>
+    <div class="section-title">Today's Vitals</div>
+    <div class="vitals-grid">
+      <div class="vital-card fade"><div class="vital-label">❤️ Heart Rate</div><div class="vital-value ok" id="v-hr">72</div><div class="vital-unit">bpm · Normal</div></div>
+      <div class="vital-card fade"><div class="vital-label">🩸 Blood O₂</div><div class="vital-value ok" id="v-spo2">98</div><div class="vital-unit">% · Normal</div></div>
+      <div class="vital-card fade"><div class="vital-label">🌡️ Temperature</div><div class="vital-value warn" id="v-temp">37.2</div><div class="vital-unit">°C · Normal</div></div>
+      <div class="vital-card fade"><div class="vital-label">💊 Adherence</div><div class="vital-value ok" id="v-adh">85</div><div class="vital-unit">% · This week</div></div>
+    </div>
+    <button class="emergency-btn fade" onclick="triggerEmergency()">🚨 Emergency Alert</button>
+    <div class="section-title">Today's Summary</div>
+    <div id="home-summary" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;font-size:14px;line-height:1.6;color:var(--muted);margin-bottom:20px">
+      Loading your health summary...
+    </div>
+  </div>
+</div>
+
+<!-- MEDS -->
+<div class="screen" id="screen-meds">
+  <div class="meds-scroll">
+    <div class="greeting fade" style="margin-bottom:18px">
+      <div class="greeting-sub">Stay on track</div>
+      <h2 style="font-family:'DM Serif Display',serif;font-size:24px">Medications</h2>
+    </div>
+    <div id="med-list-full"></div>
+    <div style="margin-top:8px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;font-size:13px;color:var(--muted);line-height:1.6">
+      💡 Tap <strong style="color:var(--text)">Mark Taken</strong> after each dose. Your adherence score updates automatically.
+    </div>
+  </div>
+</div>
+
+<!-- SYMPTOM CHECK -->
+<div class="screen" id="screen-symptom">
+  <div class="symptom-scroll">
+    <div class="sym-header fade">
+      <h3>Symptom Check</h3>
+      <p>Select what you're feeling and I'll give you personalised guidance.</p>
+    </div>
+    <div class="section-title">What are you feeling?</div>
+    <div class="symptom-grid" id="sym-grid">
+      <button class="sym-btn" onclick="toggleSym(this,'Headache')"><div class="sym-icon">🤕</div><div class="sym-label">Headache</div></button>
+      <button class="sym-btn" onclick="toggleSym(this,'Chest pain')"><div class="sym-icon">🫀</div><div class="sym-label">Chest Pain</div></button>
+      <button class="sym-btn" onclick="toggleSym(this,'Dizziness')"><div class="sym-icon">💫</div><div class="sym-label">Dizziness</div></button>
+      <button class="sym-btn" onclick="toggleSym(this,'Shortness of breath')"><div class="sym-icon">😮‍💨</div><div class="sym-label">Breathlessness</div></button>
+      <button class="sym-btn" onclick="toggleSym(this,'Nausea')"><div class="sym-icon">🤢</div><div class="sym-label">Nausea</div></button>
+      <button class="sym-btn" onclick="toggleSym(this,'Fatigue')"><div class="sym-icon">😴</div><div class="sym-label">Fatigue</div></button>
+      <button class="sym-btn" onclick="toggleSym(this,'High blood sugar symptoms')"><div class="sym-icon">🩸</div><div class="sym-label">Blood Sugar</div></button>
+      <button class="sym-btn" onclick="toggleSym(this,'Joint or muscle pain')"><div class="sym-icon">🦴</div><div class="sym-label">Joint Pain</div></button>
+    </div>
+    <div class="severity-row">
+      <div class="severity-label">How severe is it?</div>
+      <div class="severity-btns">
+        <button class="sev-btn mild" onclick="selectSev(this,'Mild')">😐 Mild</button>
+        <button class="sev-btn moderate" onclick="selectSev(this,'Moderate')">😟 Moderate</button>
+        <button class="sev-btn severe" onclick="selectSev(this,'Severe')">😰 Severe</button>
+      </div>
+    </div>
+    <textarea class="sym-notes" id="sym-notes" placeholder="Any other details? (optional)"></textarea>
+    <button class="btn-primary" onclick="checkSymptoms()" id="sym-check-btn">Analyse Symptoms →</button>
+    <div class="sym-result" id="sym-result">
+      <div class="sym-result-header">🤖 MediMind Analysis</div>
+      <div id="sym-result-text"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="screen" id="screen-chat">
+  <div class="chat-wrap">
+    <div class="chat-header-bar">
+      <div>
+        <div class="chat-title-txt">Ask MediMind</div>
+        <div class="chat-sub-txt">AI health companion · always here</div>
+      </div>
+    </div>
+    <div class="chat-msgs" id="chat-msgs"></div>
+    <div class="typing" id="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>
+    <div class="chat-input-row">
+      <textarea class="chat-inp" id="chat-inp" placeholder="Ask anything about your health..." rows="1" onkeydown="handleKey(event)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="screen" id="screen-profile">
+  <div class="profile-scroll">
+    <div class="greeting fade" style="margin-bottom:18px">
+      <div class="greeting-sub">Your health profile</div>
+      <h2 style="font-family:'DM Serif Display',serif;font-size:24px">My Profile</h2>
+    </div>
+    <div class="profile-card fade">
+      <h3>Personal Details</h3>
+      <div class="p-row"><span class="p-lbl">Name</span><span class="p-val" id="p-name">—</span></div>
+      <div class="p-row"><span class="p-lbl">Age</span><span class="p-val" id="p-age">—</span></div>
+      <div class="p-row"><span class="p-lbl">Emergency Contact</span><span class="p-val" id="p-emergency">—</span></div>
+    </div>
+    <div class="profile-card fade">
+      <h3>Medical Conditions</h3>
+      <div id="p-conditions" style="font-size:14px;line-height:1.6">—</div>
+    </div>
+    <div class="profile-card fade">
+      <h3>Medications</h3>
+      <div id="p-medications" style="font-size:14px;line-height:1.6">—</div>
+    </div>
+    <button class="btn-ghost" onclick="resetApp()">Reset Profile</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="bottom-nav" id="bottom-nav" style="display:none">
+  <button class="nav-item active" id="nav-home" onclick="switchTab('home')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
+  <button class="nav-item" id="nav-meds" onclick="switchTab('meds')"><span class="nav-icon">💊</span><span class="nav-label">Meds</span></button>
+  <button class="nav-item" id="nav-symptom" onclick="switchTab('symptom')"><span class="nav-icon">🩺</span><span class="nav-label">Symptoms</span></button>
+  <button class="nav-item" id="nav-chat" onclick="switchTab('chat')"><span class="nav-icon">💬</span><span class="nav-label">Chat</span></button>
+  <button class="nav-item" id="nav-profile" onclick="switchTab('profile')"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></button>
+</nav>
+
+</div>
 <script>
-  // ── State ──────────────────────────────────────────────────────────────
-  let userData = JSON.parse(localStorage.getItem('medimind_user') || 'null');
-  let chatHistory = [];
-  const API_KEY = 'YOUR_API_KEY_HERE'; // Replace with real key before demo
+let userData=null,chatHistory=[],takenMeds={},selectedSymptoms=[],selectedSeverity='';
 
-  // ── Boot ───────────────────────────────────────────────────────────────
-  window.onload = () => {
-    if (userData) {
-      initApp();
-    }
-  };
+window.onload=()=>{
+  try{const s=sessionStorage.getItem('mm_user');if(s){userData=JSON.parse(s);takenMeds=JSON.parse(sessionStorage.getItem('mm_taken')||'{}');initApp()}}catch(e){}
+};
 
-  function startApp() {
-    const name = document.getElementById('inp-name').value.trim();
-    const age = document.getElementById('inp-age').value.trim();
-    const conditions = document.getElementById('inp-conditions').value.trim();
-    const medications = document.getElementById('inp-medications').value.trim();
-    const emergency = document.getElementById('inp-emergency').value.trim();
+function startApp(){
+  const name=document.getElementById('inp-name').value.trim();
+  const age=document.getElementById('inp-age').value.trim();
+  if(!name||!age){alert('Please enter your name and age.');return}
+  userData={name,age,conditions:document.getElementById('inp-conditions').value.trim(),medications:document.getElementById('inp-medications').value.trim(),emergency:document.getElementById('inp-emergency').value.trim()};
+  try{sessionStorage.setItem('mm_user',JSON.stringify(userData))}catch(e){}
+  initApp();
+}
 
-    if (!name || !age) {
-      alert('Please enter your name and age to continue.');
-      return;
-    }
+function initApp(){
+  document.getElementById('bottom-nav').style.display='flex';
+  updateGreeting();populateMeds();populateProfile();
+  switchTab('home');
+  loadHomeSummary();
+}
 
-    userData = { name, age, conditions, medications, emergency };
-    localStorage.setItem('medimind_user', JSON.stringify(userData));
-    initApp();
+function updateGreeting(){
+  const h=new Date().getHours();
+  document.getElementById('greeting-time').textContent=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('user-name-display').textContent=userData.name.split(' ')[0];
+}
+
+function populateMeds(){
+  const lines=(userData.medications||'').split('\n').filter(l=>l.trim());
+  const times=['Morning','Afternoon','Night'];
+  const list=document.getElementById('med-list-full');
+  list.innerHTML='';
+  if(!lines.length){list.innerHTML='<div style="color:var(--muted);font-size:14px;padding:12px 0">No medications recorded.</div>';return}
+  lines.forEach((med,i)=>{
+    const t=times[i%3],id='med_'+i;
+    const taken=takenMeds[id];
+    list.innerHTML+=`<div class="med-card fade" id="card_${id}">
+      <div class="med-left"><div class="med-name">${med.trim()}</div><div class="med-detail">${t} dose</div></div>
+      <div class="med-status">
+        <span class="badge ${taken?'taken':i===0?'due':'upcoming'}" id="badge_${id}">${taken?'✓ Taken':i===0?'Due Now':'Upcoming'}</span>
+        ${!taken?`<button class="mark-btn" onclick="markTaken('${id}')">Mark Taken</button>`:''}
+      </div>
+    </div>`;
+  });
+}
+
+function markTaken(id){
+  takenMeds[id]=true;
+  try{sessionStorage.setItem('mm_taken',JSON.stringify(takenMeds))}catch(e){}
+  const badge=document.getElementById('badge_'+id);
+  if(badge){badge.className='badge taken';badge.textContent='✓ Taken'}
+  const card=document.getElementById('card_'+id);
+  if(card){const btn=card.querySelector('.mark-btn');if(btn)btn.remove()}
+  const total=Object.keys(userData.medications.split('\n').filter(l=>l.trim())).length||1;
+  const pct=Math.round((Object.keys(takenMeds).length/Math.max(userData.medications.split('\n').filter(l=>l.trim()).length,1))*100);
+  document.getElementById('v-adh').textContent=Math.min(pct+60,99);
+}
+
+function populateProfile(){
+  document.getElementById('p-name').textContent=userData.name;
+  document.getElementById('p-age').textContent=userData.age+' years';
+  document.getElementById('p-emergency').textContent=userData.emergency||'Not set';
+  document.getElementById('p-conditions').textContent=userData.conditions||'None recorded';
+  document.getElementById('p-medications').textContent=userData.medications||'None recorded';
+}
+
+function switchTab(tab){
+  ['home','meds','symptom','chat','profile'].forEach(t=>{
+    document.getElementById('screen-'+t).classList.remove('active');
+    const n=document.getElementById('nav-'+t);if(n)n.classList.remove('active');
+  });
+  document.getElementById('screen-onboard').classList.remove('active');
+  document.getElementById('screen-'+tab).classList.add('active');
+  const nav=document.getElementById('nav-'+tab);if(nav)nav.classList.add('active');
+}
+
+function buildSystem(){
+  return`You are MediMind AI, a warm, caring personal health companion for elderly patients.
+Patient: ${userData.name}, Age ${userData.age}
+Conditions: ${userData.conditions||'None'}
+Medications: ${userData.medications||'None'}
+Emergency Contact: ${userData.emergency||'Not set'}
+Rules: Address by first name warmly. Simple plain language. Never diagnose. Always recommend doctor for serious issues. For emergencies say call 1990 immediately. Be concise and compassionate.`;
+}
+
+async function callAI(messages,system){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:system||buildSystem(),messages})
+  });
+  const data=await res.json();
+  return data.content?.[0]?.text||'Sorry, I could not process that.';
+}
+
+async function loadHomeSummary(){
+  const el=document.getElementById('home-summary');
+  try{
+    const reply=await callAI([{role:'user',content:`Give ${userData.name.split(' ')[0]} a brief friendly 2-sentence morning health summary. Mention their conditions (${userData.conditions||'none'}) and remind them about their medications (${userData.medications||'none'}). Keep it warm and encouraging.`}]);
+    el.style.color='var(--text)';el.textContent=reply;
+  }catch(e){el.textContent='Stay healthy today! Remember to take your medications on time.'}
+}
+
+async function sendMessage(){
+  const inp=document.getElementById('chat-inp');
+  const msg=inp.value.trim();if(!msg)return;
+  inp.value='';
+  appendMsg('user',msg);
+  chatHistory.push({role:'user',content:msg});
+  document.getElementById('send-btn').disabled=true;
+  document.getElementById('typing').classList.add('on');
+  scrollChat();
+  try{
+    const reply=await callAI(chatHistory);
+    chatHistory.push({role:'assistant',content:reply});
+    document.getElementById('typing').classList.remove('on');
+    appendMsg('ai',reply);
+  }catch(e){
+    document.getElementById('typing').classList.remove('on');
+    appendMsg('ai','⚠️ Unable to connect. Please check your internet.');
   }
+  document.getElementById('send-btn').disabled=false;scrollChat();
+}
 
-  function initApp() {
-    document.getElementById('bottom-nav').style.display = 'flex';
-    updateGreeting();
-    populateMeds();
-    populateProfile();
-    switchTab('home');
+function appendMsg(role,text){
+  const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const div=document.createElement('div');div.className='msg '+role;
+  div.innerHTML=`<div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div><div class="msg-time">${now}</div>`;
+  document.getElementById('chat-msgs').appendChild(div);scrollChat();
+}
+
+function scrollChat(){const c=document.getElementById('chat-msgs');c.scrollTop=c.scrollHeight}
+
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
+
+function toggleSym(btn,sym){
+  btn.classList.toggle('selected');
+  if(btn.classList.contains('selected')){if(!selectedSymptoms.includes(sym))selectedSymptoms.push(sym)}
+  else{selectedSymptoms=selectedSymptoms.filter(s=>s!==sym)}
+}
+
+function selectSev(btn,sev){
+  document.querySelectorAll('.sev-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');selectedSeverity=sev;
+}
+
+async function checkSymptoms(){
+  if(!selectedSymptoms.length){alert('Please select at least one symptom.');return}
+  const btn=document.getElementById('sym-check-btn');
+  btn.textContent='Analysing...';btn.disabled=true;
+  const notes=document.getElementById('sym-notes').value.trim();
+  const result=document.getElementById('sym-result');
+  const resultText=document.getElementById('sym-result-text');
+  result.classList.remove('visible');
+  try{
+    const prompt=`Patient ${userData.name}, age ${userData.age}, with conditions: ${userData.conditions||'none'}, taking: ${userData.medications||'none'}.
+They are reporting: ${selectedSymptoms.join(', ')}. Severity: ${selectedSeverity||'not specified'}. ${notes?'Additional notes: '+notes:''}
+Give a brief, warm, practical response: what these symptoms might indicate, whether they should see a doctor urgently or can monitor at home, and one or two things they can do right now. Keep it simple and reassuring. Max 4 sentences.`;
+    const reply=await callAI([{role:'user',content:prompt}]);
+    resultText.innerHTML=reply.replace(/\n/g,'<br>');
+    result.classList.add('visible');
+  }catch(e){
+    resultText.textContent='⚠️ Unable to connect. Please check your internet.';
+    result.classList.add('visible');
   }
+  btn.textContent='Analyse Symptoms →';btn.disabled=false;
+}
 
-  function updateGreeting() {
-    const h = new Date().getHours();
-    const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-    document.getElementById('greeting-time').textContent = greet;
-    document.getElementById('user-name-display').textContent = userData.name.split(' ')[0];
+function triggerEmergency(){
+  const contact=userData?.emergency||'your emergency contact';
+  if(confirm(`🚨 Send emergency alert to ${contact}?\n\nThis will show emergency numbers.`)){
+    alert(`🚨 EMERGENCY ALERT\n\nAlerting: ${contact}\n\nSri Lanka Ambulance: 1990\nPolice: 119\nSuwa Seriya: 1990\n\nPlease stay calm. Help is on the way.`);
   }
+}
 
-  function populateMeds() {
-    const meds = userData.medications || 'No medications listed';
-    const lines = meds.split('\n').filter(l => l.trim());
-    const times = ['Morning', 'Afternoon', 'Night'];
-    const statuses = ['due', 'taken', 'upcoming'];
-    const labels = ['Due Now', 'Taken', 'Tonight'];
-
-    const list = document.getElementById('med-list');
-    list.innerHTML = '';
-
-    if (lines.length === 0 || meds === 'No medications listed') {
-      list.innerHTML = '<div style="color:var(--muted);font-size:14px;padding:12px 0">No medications recorded.</div>';
-      return;
-    }
-
-    lines.forEach((med, i) => {
-      const s = statuses[i % 3];
-      const t = times[i % 3];
-      const l = labels[i % 3];
-      list.innerHTML += `
-        <div class="med-item">
-          <div class="med-info">
-            <div class="med-name">${med.trim()}</div>
-            <div class="med-time">${t} dose</div>
-          </div>
-          <span class="med-badge ${s}">${l}</span>
-        </div>`;
-    });
+function resetApp(){
+  if(confirm('Reset your profile? All data will be cleared.')){
+    try{sessionStorage.removeItem('mm_user');sessionStorage.removeItem('mm_taken')}catch(e){}
+    userData=null;chatHistory=[];takenMeds={};selectedSymptoms=[];selectedSeverity='';
+    document.getElementById('chat-msgs').innerHTML='';
+    document.getElementById('bottom-nav').style.display='none';
+    ['home','meds','symptom','chat','profile'].forEach(t=>document.getElementById('screen-'+t).classList.remove('active'));
+    document.getElementById('screen-onboard').classList.add('active');
   }
-
-  function populateProfile() {
-    document.getElementById('profile-name').textContent = userData.name;
-    document.getElementById('profile-age').textContent = userData.age + ' years';
-    document.getElementById('profile-emergency').textContent = userData.emergency || 'Not set';
-    document.getElementById('profile-conditions').textContent = userData.conditions || 'None recorded';
-    document.getElementById('profile-medications').textContent = userData.medications || 'None recorded';
-  }
-
-  // ── Navigation ─────────────────────────────────────────────────────────
-  function switchTab(tab) {
-    ['home','chat','profile'].forEach(t => {
-      document.getElementById('screen-' + t).classList.remove('active');
-      document.getElementById('nav-' + t)?.classList.remove('active');
-    });
-    document.getElementById('screen-onboard').classList.remove('active');
-    document.getElementById('screen-' + tab).classList.add('active');
-    document.getElementById('nav-' + tab)?.classList.add('active');
-  }
-
-  function goToChat(prefill) {
-    switchTab('chat');
-    if (prefill) {
-      document.getElementById('chat-input').value = prefill;
-      sendMessage();
-    }
-  }
-
-  function goToHome() { switchTab('home'); }
-
-  // ── Chat ───────────────────────────────────────────────────────────────
-  function buildSystemPrompt() {
-    return `You are MediMind AI, a warm, caring, and intelligent personal health companion. You are NOT a replacement for doctors but a supportive assistant.
-
-Patient Profile:
-- Name: ${userData.name}
-- Age: ${userData.age}
-- Medical Conditions: ${userData.conditions || 'None specified'}
-- Current Medications: ${userData.medications || 'None specified'}
-- Emergency Contact: ${userData.emergency || 'Not set'}
-
-Guidelines:
-- Always address the patient by their first name warmly
-- Give clear, simple health guidance in plain language
-- For medication reminders, be specific about the patient's actual medications
-- For symptoms, always recommend consulting a real doctor for serious issues
-- For emergencies, always say to call emergency services immediately
-- Keep responses concise and compassionate
-- Never diagnose — always suggest professional consultation for medical decisions
-- You can suggest specialist types and general health tips`;
-  }
-
-  async function sendMessage() {
-    const input = document.getElementById('chat-input');
-    const msg = input.value.trim();
-    if (!msg) return;
-
-    input.value = '';
-    appendMsg('user', msg);
-
-    chatHistory.push({ role: 'user', content: msg });
-
-    document.getElementById('send-btn').disabled = true;
-    document.getElementById('typing').classList.add('visible');
-    scrollChat();
-
-    try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          system: buildSystemPrompt(),
-          messages: chatHistory
-        })
-      });
-
-      const data = await response.json();
-      const reply = data.content?.[0]?.text || 'Sorry, I could not process that. Please try again.';
-
-      chatHistory.push({ role: 'assistant', content: reply });
-      document.getElementById('typing').classList.remove('visible');
-      appendMsg('ai', reply);
-
-    } catch (err) {
-      document.getElementById('typing').classList.remove('visible');
-      appendMsg('ai', '⚠️ Unable to connect. Please check your internet connection.');
-    }
-
-    document.getElementById('send-btn').disabled = false;
-    scrollChat();
-  }
-
-  function appendMsg(role, text) {
-    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const div = document.createElement('div');
-    div.className = `msg ${role}`;
-    div.innerHTML = `
-      <div class="msg-bubble">${text.replace(/\n/g, '<br>')}</div>
-      <div class="msg-time">${now}</div>`;
-    document.getElementById('chat-messages').appendChild(div);
-    scrollChat();
-  }
-
-  function scrollChat() {
-    const c = document.getElementById('chat-messages');
-    c.scrollTop = c.scrollHeight;
-  }
-
-  function handleKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  }
-
-  // ── Emergency ──────────────────────────────────────────────────────────
-  function triggerEmergency() {
-    const contact = userData?.emergency || 'your emergency contact';
-    if (confirm(`🚨 Send emergency alert to ${contact}?\n\nThis will also show instructions to call 1990 (Sri Lanka ambulance).`)) {
-      alert(`🚨 EMERGENCY ALERT\n\nAlerting: ${contact}\nSri Lanka Ambulance: 1990\nPolice: 119\n\nPlease stay calm. Help is on the way.`);
-    }
-  }
-
-  // ── Reset ──────────────────────────────────────────────────────────────
-  function resetApp() {
-    if (confirm('Reset your profile? All data will be cleared.')) {
-      localStorage.removeItem('medimind_user');
-      userData = null;
-      chatHistory = [];
-      document.getElementById('chat-messages').innerHTML = '';
-      document.getElementById('bottom-nav').style.display = 'none';
-      ['home','chat','profile'].forEach(t => document.getElementById('screen-' + t).classList.remove('active'));
-      document.getElementById('screen-onboard').classList.add('active');
-    }
-  }
+}
 </script>
 </body>
 </html>
