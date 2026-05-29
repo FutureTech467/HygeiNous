@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MediMind AI</title>
+<title>HygeiNous</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0f1e;--surface:#111827;--accent:#00d4aa;--accent2:#3b82f6;--danger:#ef4444;--warn:#f59e0b;--text:#e8edf5;--muted:#6b7a99;--border:rgba(255,255,255,0.08);--glow:rgba(0,212,170,0.12)}
@@ -137,7 +137,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <div class="header">
   <div class="logo">
     <div class="logo-icon">🧠</div>
-    <span class="logo-text">MediMind AI</span>
+    <span class="logo-text">HygeiNous</span>
   </div>
   <div class="status-dot"><div class="dot"></div><span>Active</span></div>
 </div>
@@ -234,7 +234,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   <div class="chat-wrap">
     <div class="chat-header-bar">
       <div>
-        <div class="chat-title-txt">Ask MediMind</div>
+        <div class="chat-title-txt">Ask HygeiNous</div>
         <div class="chat-sub-txt">AI health companion · always here</div>
       </div>
     </div>
@@ -362,7 +362,7 @@ function switchTab(tab){
 }
 
 function buildSystem(){
-  return`You are MediMind AI, a warm, caring personal health companion for elderly patients.
+  return`You are HygeiNous, a warm, caring personal health companion for patients.
 Patient: ${userData.name}, Age ${userData.age}
 Conditions: ${userData.conditions||'None'}
 Medications: ${userData.medications||'None'}
