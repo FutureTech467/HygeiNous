@@ -466,15 +466,7 @@ function handleBraceletAction(){
 
 async function connectBracelet(){
   if(!bluetoothSupported()){
-    alert('Bluetooth is not available on this browser/device.
-
-This works on Chrome or Edge on Android and Desktop.
-
-It does NOT work on:
-- iPhone — any browser (Safari, Chrome, etc. all run on Apple's engine, which blocks this)
-- Firefox — on any device (Mozilla has chosen not to support this feature)
-
-A WiFi-based connection option is planned for broader support.');
+    alert('Bluetooth is not available on this browser/device.\n\nThis works on Chrome or Edge on Android and Desktop.\n\nIt does NOT work on:\n- iPhone — any browser (Safari, Chrome, etc. all run on Apple\'s engine, which blocks this)\n- Firefox — on any device (Mozilla has chosen not to support this feature)\n\nA WiFi-based connection option is planned for broader support.');
     return;
   }
 
