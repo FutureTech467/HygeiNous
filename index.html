@@ -16,8 +16,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .logo{display:flex;align-items:center;gap:10px}
 .logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px}
 .logo-text{font-family:'DM Serif Display',serif;font-size:19px;letter-spacing:-0.5px;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.status-dot{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);font-weight:500}
+.status-dot{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);font-weight:500;cursor:pointer;user-select:none}
+.status-dot.disconnected{color:var(--muted)}
 .dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite;box-shadow:0 0 6px var(--accent)}
+.status-dot.disconnected .dot{background:var(--muted);animation:none;box-shadow:none}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}
 .screen{display:none;flex:1;flex-direction:column}
 .screen.active{display:flex}
@@ -33,11 +35,26 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .form-group textarea{height:72px}
 .btn-primary{width:100%;background:linear-gradient(135deg,var(--accent),#00b894);color:#0a0f1e;border:none;border-radius:14px;padding:15px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:8px;box-shadow:0 4px 20px rgba(0,212,170,0.25)}
 .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,212,170,0.35)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
 .home-scroll{padding:20px 24px;flex:1;overflow-y:auto}
 .greeting{margin-bottom:22px}
 .greeting-sub{font-size:13px;color:var(--muted);margin-bottom:3px}
 .greeting h2{font-family:'DM Serif Display',serif;font-size:26px}
 .greeting h2 span{color:var(--accent)}
+
+/* Bracelet connection banner */
+.bracelet-banner{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bracelet-banner.connected{border-color:rgba(0,212,170,0.3);background:rgba(0,212,170,0.06)}
+.bracelet-info{display:flex;align-items:center;gap:10px}
+.bracelet-icon{font-size:20px}
+.bracelet-text{display:flex;flex-direction:column}
+.bracelet-title{font-size:13px;font-weight:600}
+.bracelet-sub{font-size:11px;color:var(--muted)}
+.bracelet-btn{background:linear-gradient(135deg,var(--accent),#00b894);color:#0a0f1e;border:none;border-radius:10px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s}
+.bracelet-btn:hover{transform:translateY(-1px)}
+.bracelet-btn.disconnect{background:transparent;color:var(--danger);border:1px solid rgba(239,68,68,0.3)}
+.bracelet-btn:disabled{opacity:0.5;cursor:not-allowed}
+
 .vitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
 .vital-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:15px;transition:border-color 0.2s}
 .vital-card:hover{border-color:rgba(0,212,170,0.25)}
@@ -45,7 +62,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .vital-value{font-family:'DM Serif Display',serif;font-size:28px;line-height:1;margin-bottom:3px}
 .vital-value.ok{color:var(--accent)}
 .vital-value.warn{color:var(--warn)}
+.vital-value.offline{color:var(--muted)}
 .vital-unit{font-size:11px;color:var(--muted)}
+.vital-unit.offline-msg{color:var(--muted);font-style:italic}
 .section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px}
 .emergency-btn{width:100%;background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;border-radius:14px;padding:16px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:22px;box-shadow:0 4px 20px rgba(239,68,68,0.25);transition:all 0.2s}
 .emergency-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(239,68,68,0.35)}
@@ -140,11 +159,11 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <img src="HygeiNous1.png" style="width:34px;height:34px;border-radius:10px;" alt="logo">
     <span class="logo-text">HygeiNous</span>
   </div>
-  <div class="status-dot"><div class="dot"></div><span>Active</span></div>
+  <div class="status-dot disconnected" id="header-status" onclick="switchTab('home')"><div class="dot"></div><span id="header-status-text">No Device</span></div>
 </div>
 
 <!-- ONBOARD -->
-<div class="screen active" id="screen-onboard">
+<div class="screen" id="screen-onboard">
   <div class="onboard-content">
     <div class="onboard-hero fade">
       <h1>Your intelligent<br><span>health companion</span></h1>
@@ -166,12 +185,25 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <div class="greeting-sub" id="greeting-time">Good morning</div>
       <h2>Hello, <span id="user-name-display">there</span> 👋</h2>
     </div>
+
+    <!-- Bracelet connection banner -->
+    <div class="bracelet-banner fade" id="bracelet-banner">
+      <div class="bracelet-info">
+        <div class="bracelet-icon" id="bracelet-icon">⌚</div>
+        <div class="bracelet-text">
+          <div class="bracelet-title" id="bracelet-title">Bracelet not connected</div>
+          <div class="bracelet-sub" id="bracelet-sub">Connect via Bluetooth to see live vitals</div>
+        </div>
+      </div>
+      <button class="bracelet-btn" id="bracelet-action-btn" onclick="handleBraceletAction()">Connect</button>
+    </div>
+
     <div class="section-title">Today's Vitals</div>
     <div class="vitals-grid">
-      <div class="vital-card fade"><div class="vital-label">❤️ Heart Rate</div><div class="vital-value ok" id="v-hr">72</div><div class="vital-unit">bpm · Normal</div></div>
-      <div class="vital-card fade"><div class="vital-label">🩸 Blood O₂</div><div class="vital-value ok" id="v-spo2">98</div><div class="vital-unit">% · Normal</div></div>
-      <div class="vital-card fade"><div class="vital-label">🌡️ Temperature</div><div class="vital-value warn" id="v-temp">37.2</div><div class="vital-unit">°C · Normal</div></div>
-      <div class="vital-card fade"><div class="vital-label">💊 Adherence</div><div class="vital-value ok" id="v-adh">85</div><div class="vital-unit">% · This week</div></div>
+      <div class="vital-card fade"><div class="vital-label">❤️ Heart Rate</div><div class="vital-value offline" id="v-hr">––</div><div class="vital-unit offline-msg" id="v-hr-unit">Bracelet must be connected</div></div>
+      <div class="vital-card fade"><div class="vital-label">🩸 Blood O₂</div><div class="vital-value offline" id="v-spo2">––</div><div class="vital-unit offline-msg" id="v-spo2-unit">Bracelet must be connected</div></div>
+      <div class="vital-card fade"><div class="vital-label">🌡️ Temperature</div><div class="vital-value offline" id="v-temp">––</div><div class="vital-unit offline-msg" id="v-temp-unit">Bracelet must be connected</div></div>
+      <div class="vital-card fade"><div class="vital-label">💊 Adherence</div><div class="vital-value ok" id="v-adh">0</div><div class="vital-unit">% · This week</div></div>
     </div>
     <button class="emergency-btn fade" onclick="triggerEmergency()">🚨 Emergency Alert</button>
     <div class="section-title">Today's Summary</div>
@@ -269,6 +301,12 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <h3>Medications</h3>
       <div id="p-medications" style="font-size:14px;line-height:1.6">—</div>
     </div>
+    <div class="profile-card fade">
+      <h3>Bracelet Device</h3>
+      <div class="p-row"><span class="p-lbl">Status</span><span class="p-val" id="p-bracelet-status">Not connected</span></div>
+      <div class="p-row"><span class="p-lbl">Device Name</span><span class="p-val" id="p-bracelet-name">—</span></div>
+      <button class="mark-btn" style="margin-top:10px;width:100%;text-align:center;padding:10px" id="p-bracelet-forget-btn" onclick="forgetBracelet()">Forget Device</button>
+    </div>
     <button class="btn-ghost" onclick="resetApp()">Reset Profile</button>
   </div>
 </div>
@@ -286,24 +324,49 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 <script>
 let userData=null,chatHistory=[],takenMeds={},selectedSymptoms=[],selectedSeverity='';
 
+/* ===== BRACELET CONNECTION STATE ===== */
+let braceletDevice=null;      // BluetoothDevice object (live session only, can't be serialized)
+let braceletServer=null;      // GATT server
+let braceletConnected=false;  // current live connection state
+let braceletInfo=null;        // {name, id} - persisted to localStorage so UI remembers "last known device"
+
 const PROXY_URL='https://medimind-proxy.medimind467.workers.dev';
 
-window.onload=()=>{
-  try{const s=sessionStorage.getItem('mm_user');if(s){userData=JSON.parse(s);takenMeds=JSON.parse(sessionStorage.getItem('mm_taken')||'{}');initApp()}}catch(e){}
-};
+/* ---- Persistence keys ---- */
+const LS_USER='hg_user';
+const LS_TAKEN='hg_taken';
+const LS_BRACELET='hg_bracelet_info';
+
+(function initOnLoad(){
+  try{
+    const s=localStorage.getItem(LS_USER);
+    if(s){
+      userData=JSON.parse(s);
+      takenMeds=JSON.parse(localStorage.getItem(LS_TAKEN)||'{}');
+      braceletInfo=JSON.parse(localStorage.getItem(LS_BRACELET)||'null');
+      initApp();
+    }else{
+      document.getElementById('screen-onboard').classList.add('active');
+    }
+  }catch(e){
+    document.getElementById('screen-onboard').classList.add('active');
+  }
+})();
 
 function startApp(){
   const name=document.getElementById('inp-name').value.trim();
   const age=document.getElementById('inp-age').value.trim();
   if(!name||!age){alert('Please enter your name and age.');return}
   userData={name,age,conditions:document.getElementById('inp-conditions').value.trim(),medications:document.getElementById('inp-medications').value.trim(),emergency:document.getElementById('inp-emergency').value.trim()};
-  try{sessionStorage.setItem('mm_user',JSON.stringify(userData))}catch(e){}
+  try{localStorage.setItem(LS_USER,JSON.stringify(userData))}catch(e){}
   initApp();
 }
 
 function initApp(){
   document.getElementById('bottom-nav').style.display='flex';
   updateGreeting();populateMeds();populateProfile();
+  updateAdherence();
+  updateBraceletUI(); // reflect last-known device info (still shows "disconnected" until live GATT connects)
   switchTab('home');
   loadHomeSummary();
 }
@@ -335,13 +398,20 @@ function populateMeds(){
 
 function markTaken(id){
   takenMeds[id]=true;
-  try{sessionStorage.setItem('mm_taken',JSON.stringify(takenMeds))}catch(e){}
+  try{localStorage.setItem(LS_TAKEN,JSON.stringify(takenMeds))}catch(e){}
   const badge=document.getElementById('badge_'+id);
   if(badge){badge.className='badge taken';badge.textContent='✓ Taken'}
   const card=document.getElementById('card_'+id);
   if(card){const btn=card.querySelector('.mark-btn');if(btn)btn.remove()}
-  const pct=Math.round((Object.keys(takenMeds).length/Math.max(userData.medications.split('\n').filter(l=>l.trim()).length,1))*100);
-  document.getElementById('v-adh').textContent=Math.min(pct+60,99);
+  updateAdherence();
+}
+
+function updateAdherence(){
+  const total=userData.medications.split('\n').filter(l=>l.trim()).length;
+  if(total===0){document.getElementById('v-adh').textContent='––';return}
+  const taken=Object.keys(takenMeds).length;
+  const pct=Math.round((taken/total)*100);
+  document.getElementById('v-adh').textContent=pct;
 }
 
 function populateProfile(){
@@ -361,6 +431,188 @@ function switchTab(tab){
   document.getElementById('screen-'+tab).classList.add('active');
   const nav=document.getElementById('nav-'+tab);if(nav)nav.classList.add('active');
 }
+
+/* ===========================================================
+   BRACELET / BLUETOOTH LOGIC
+
+   Notes for whoever wires in the real hardware later:
+   - This uses the Web Bluetooth API (navigator.bluetooth).
+   - ONLY works on Chrome/Edge on Android + Desktop. Does NOT
+     work on iOS (Safari or "Chrome" on iPhone - both are
+     WebKit under the hood, Apple disables Web Bluetooth).
+   - For iOS support later, swap this out for a WiFi/HTTP polling
+     approach instead (bracelet -> Cloudflare Worker -> fetch()).
+   - Replace SERVICE_UUID / CHAR_UUID below with whatever your
+     actual bracelet firmware broadcasts (e.g. if using a
+     MAX30102 + ESP32, you define these UUIDs yourself in the
+     firmware's BLE service setup).
+   =========================================================== */
+
+// Placeholder UUIDs - swap these for your bracelet's actual service/characteristic
+const BRACELET_SERVICE_UUID='0000180d-0000-1000-8000-00805f9b34fb'; // example: standard Heart Rate service
+const BRACELET_CHAR_UUID='00002a37-0000-1000-8000-00805f9b34fb';    // example: Heart Rate Measurement characteristic
+
+function bluetoothSupported(){
+  return 'bluetooth' in navigator;
+}
+
+function handleBraceletAction(){
+  if(braceletConnected){
+    disconnectBracelet();
+  }else{
+    connectBracelet();
+  }
+}
+
+async function connectBracelet(){
+  if(!bluetoothSupported()){
+    alert('Bluetooth is not available on this browser/device.\n\nThis works on Chrome or Edge on Android and Desktop. iPhone browsers (including "Chrome" on iOS) cannot use Web Bluetooth — that\'s an Apple/iOS restriction, not a browser-specific one, since every iOS browser is required to run on Apple\'s engine.\n\nA WiFi-based connection option is planned for iOS support.');
+    return;
+  }
+
+  const btn=document.getElementById('bracelet-action-btn');
+  btn.disabled=true;btn.textContent='Connecting...';
+
+  try{
+    // requestDevice opens the browser's native device picker
+    const device=await navigator.bluetooth.requestDevice({
+      filters:[{ services:[BRACELET_SERVICE_UUID] }],
+      // Use acceptAllDevices:true + optionalServices instead while testing
+      // with a device whose exact service UUID you haven't set yet:
+      // acceptAllDevices:true, optionalServices:[BRACELET_SERVICE_UUID]
+    });
+
+    braceletDevice=device;
+    device.addEventListener('gattserverdisconnected',onBraceletDisconnected);
+
+    const server=await device.gatt.connect();
+    braceletServer=server;
+
+    braceletConnected=true;
+    braceletInfo={name:device.name||'Unknown device',id:device.id};
+    try{localStorage.setItem(LS_BRACELET,JSON.stringify(braceletInfo))}catch(e){}
+
+    // Try to start listening for live vitals. Falls back silently
+    // if this specific characteristic isn't present on this device yet.
+    try{
+      const service=await server.getPrimaryService(BRACELET_SERVICE_UUID);
+      const characteristic=await service.getCharacteristic(BRACELET_CHAR_UUID);
+      await characteristic.startNotifications();
+      characteristic.addEventListener('characteristicvaluechanged',onVitalsUpdate);
+    }catch(e){
+      console.warn('Could not subscribe to vitals characteristic yet:',e);
+    }
+
+    updateBraceletUI();
+  }catch(e){
+    console.warn('Bluetooth connection cancelled or failed:',e);
+  }
+
+  btn.disabled=false;
+}
+
+function disconnectBracelet(){
+  try{
+    if(braceletServer&&braceletServer.connected){
+      braceletServer.disconnect();
+    }
+  }catch(e){}
+  onBraceletDisconnected();
+}
+
+function onBraceletDisconnected(){
+  braceletConnected=false;
+  braceletServer=null;
+  updateBraceletUI();
+  setVitalsOffline();
+}
+
+function forgetBracelet(){
+  if(!confirm('Forget this bracelet device? You will need to pair again next time.'))return;
+  disconnectBracelet();
+  braceletInfo=null;
+  braceletDevice=null;
+  try{localStorage.removeItem(LS_BRACELET)}catch(e){}
+  updateBraceletUI();
+}
+
+function onVitalsUpdate(event){
+  // Parse incoming BLE data and update the dashboard live.
+  // NOTE: byte layout below assumes a standard Heart Rate Measurement
+  // characteristic format as a placeholder. Once the actual bracelet
+  // firmware/protocol is finalised, replace this parsing logic to match
+  // whatever byte structure it actually sends (HR, SpO2, temp, etc).
+  const value=event.target.value;
+  try{
+    const flags=value.getUint8(0);
+    const hr=(flags&0x1)?value.getUint16(1,true):value.getUint8(1);
+    setVitalValue('hr',hr,'bpm',hr>100||hr<50?'warn':'ok');
+    // SpO2 / temperature would be parsed from additional bytes or a
+    // separate characteristic depending on the firmware design.
+  }catch(e){
+    console.warn('Failed to parse vitals payload:',e);
+  }
+}
+
+function setVitalValue(key,value,unit,statusClass){
+  const valEl=document.getElementById('v-'+key);
+  const unitEl=document.getElementById('v-'+key+'-unit');
+  if(valEl){
+    valEl.textContent=value;
+    valEl.className='vital-value '+(statusClass||'ok');
+  }
+  if(unitEl){
+    unitEl.textContent=unit;
+    unitEl.className='vital-unit';
+  }
+}
+
+function setVitalsOffline(){
+  ['hr','spo2','temp'].forEach(key=>{
+    const valEl=document.getElementById('v-'+key);
+    const unitEl=document.getElementById('v-'+key+'-unit');
+    if(valEl){valEl.textContent='––';valEl.className='vital-value offline'}
+    if(unitEl){unitEl.textContent='Bracelet must be connected';unitEl.className='vital-unit offline-msg'}
+  });
+}
+
+function updateBraceletUI(){
+  const banner=document.getElementById('bracelet-banner');
+  const icon=document.getElementById('bracelet-icon');
+  const title=document.getElementById('bracelet-title');
+  const sub=document.getElementById('bracelet-sub');
+  const actionBtn=document.getElementById('bracelet-action-btn');
+  const headerStatus=document.getElementById('header-status');
+  const headerText=document.getElementById('header-status-text');
+  const pStatus=document.getElementById('p-bracelet-status');
+  const pName=document.getElementById('p-bracelet-name');
+
+  if(braceletConnected){
+    banner.classList.add('connected');
+    icon.textContent='✅';
+    title.textContent='Connected: '+(braceletInfo?.name||'Bracelet');
+    sub.textContent='Live vitals are streaming';
+    actionBtn.textContent='Disconnect';
+    actionBtn.classList.add('disconnect');
+    headerStatus.classList.remove('disconnected');
+    headerText.textContent='Connected';
+    if(pStatus)pStatus.textContent='Connected';
+    if(pName)pName.textContent=braceletInfo?.name||'—';
+  }else{
+    banner.classList.remove('connected');
+    icon.textContent='⌚';
+    title.textContent=braceletInfo?('Last paired: '+braceletInfo.name):'Bracelet not connected';
+    sub.textContent=braceletInfo?'Tap reconnect to resume live vitals':'Connect via Bluetooth to see live vitals';
+    actionBtn.textContent=braceletInfo?'Reconnect':'Connect';
+    actionBtn.classList.remove('disconnect');
+    headerStatus.classList.add('disconnected');
+    headerText.textContent='No Device';
+    if(pStatus)pStatus.textContent=braceletInfo?'Paired, not connected':'Not connected';
+    if(pName)pName.textContent=braceletInfo?.name||'—';
+    setVitalsOffline();
+  }
+}
+/* ===== END BRACELET LOGIC ===== */
 
 function buildSystem(){
   return`You are HygeiNous, a warm, caring personal health companion for patients.
@@ -473,8 +725,14 @@ function triggerEmergency(){
 
 function resetApp(){
   if(confirm('Reset your profile? All data will be cleared.')){
-    try{sessionStorage.removeItem('mm_user');sessionStorage.removeItem('mm_taken')}catch(e){}
+    disconnectBracelet();
+    try{
+      localStorage.removeItem(LS_USER);
+      localStorage.removeItem(LS_TAKEN);
+      localStorage.removeItem(LS_BRACELET);
+    }catch(e){}
     userData=null;chatHistory=[];takenMeds={};selectedSymptoms=[];selectedSeverity='';
+    braceletInfo=null;braceletDevice=null;braceletServer=null;braceletConnected=false;
     document.getElementById('chat-msgs').innerHTML='';
     document.getElementById('bottom-nav').style.display='none';
     ['home','meds','symptom','chat','profile'].forEach(t=>document.getElementById('screen-'+t).classList.remove('active'));
