@@ -173,7 +173,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     <div class="form-group"><label>Age</label><input type="number" id="inp-age" placeholder="e.g. 68"/></div>
     <div class="form-group"><label>Medical Conditions</label><textarea id="inp-conditions" placeholder="e.g. Type 2 Diabetes, Hypertension"></textarea></div>
     <div class="form-group"><label>Current Medications (one per line)</label><textarea id="inp-medications" placeholder="e.g. Metformin 500mg&#10;Amlodipine 5mg"></textarea></div>
-    <div class="form-group"><label>Emergency Contact</label><input type="text" id="inp-emergency" placeholder="e.g. Son - 0771234567"/></div>
+    <div class="form-group">
+  <label>Emergency Contact Phone Number</label>
+  <input type="tel" id="inp-emergency" placeholder="e.g. 0771234567 or +94771234567" pattern="^\+?[0-9]{9,14}$" required/>
+</div>
     <button class="btn-primary" onclick="startApp()">Begin My Health Journey →</button>
   </div>
 </div>
@@ -206,6 +209,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <div class="vital-card fade"><div class="vital-label">💊 Adherence</div><div class="vital-value ok" id="v-adh">0</div><div class="vital-unit">% · This week</div></div>
     </div>
     <button class="emergency-btn fade" onclick="triggerEmergency()">🚨 Emergency Alert</button>
+<button class="btn-ghost fade" id="sim-emergency-btn" onclick="simulateEmergencyVitals()" style="margin-bottom: 22px; border-color: var(--danger); color: #f87171;">⚠️ Simulate Emergency</button>
     <div class="section-title">Today's Summary</div>
     <div id="home-summary" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;font-size:14px;line-height:1.6;color:var(--muted);margin-bottom:20px">
       Loading your health summary...
@@ -323,6 +327,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 </div>
 <script>
 let userData=null,chatHistory=[],takenMeds={},selectedSymptoms=[],selectedSeverity='';
+let automaticEmergencyFired = false;
 
 /* ===== BRACELET CONNECTION STATE ===== */
 let braceletDevice=null;      // BluetoothDevice object (live session only, can't be serialized)
@@ -716,10 +721,70 @@ Give a brief, warm, practical response: what these symptoms might indicate, whet
   btn.textContent='Analyse Symptoms →';btn.disabled=false;
 }
 
-function triggerEmergency(){
-  const contact=userData?.emergency||'your emergency contact';
-  if(confirm(`🚨 Send emergency alert to ${contact}?\n\nThis will show emergency numbers.`)){
-    alert(`🚨 EMERGENCY ALERT\n\nAlerting: ${contact}\n\nSri Lanka Ambulance: 1990\nPolice: 119\nSuwa Seriya: 1990\n\nPlease stay calm. Help is on the way.`);
+// 1. Refined Emergency Dialing Action
+function triggerEmergency() {
+  if (!userData || !userData.emergency) {
+    alert("No emergency contact phone number configured in your profile.");
+    return;
+  }
+  
+  // Extract only numbers and optional leading plus sign
+  const phoneNumber = userData.emergency.replace(/[^0-9+]/g, '');
+  
+  if (!phoneNumber) {
+    alert("Could not extract a valid numerical phone number from your profile.");
+    return;
+  }
+
+  if (confirm(`🚨 Initiate Emergency call to: ${phoneNumber}?`)) {
+    window.location.href = `tel:${phoneNumber}`;
+  }
+}
+
+// 2. Updated BLE Reader with Auto-Threshold Detection
+function onVitalsUpdate(event) {
+  const value = event.target.value;
+  try {
+    // Reading 3 bytes matching your updated ESP32 structure
+    const hr = value.getUint8(0);
+    const spo2 = value.getUint8(1);
+    const temp = value.getUint8(2);
+
+    // Update UI Elements live
+    setVitalValue('hr', hr, 'bpm', hr > 100 || hr < 50 ? 'warn' : 'ok');
+    setVitalValue('spo2', spo2, '%', spo2 < 95 ? 'warn' : 'ok');
+    setVitalValue('temp', temp, '°C', temp > 38 || temp < 36 ? 'warn' : 'ok');
+    
+    // Auto-alert check if values are dangerous (diseased metrics)
+    if (!automaticEmergencyFired) {
+      if (hr > 140 || hr < 40 || spo2 < 88 || temp > 39 || temp < 35) {
+        automaticEmergencyFired = true; 
+        alert("🚨 CRITICAL HEALTH ALERT:\nAbnormal vital signs detected by the bracelet. Directing to emergency line.");
+        triggerEmergency();
+      }
+    }
+  } catch(e) {
+    console.warn('Failed to parse incoming BLE payload:', e);
+  }
+}
+
+// 3. Emergency Simulation Framework
+function simulateEmergencyVitals() {
+  alert("Simulating abnormal critical vital metrics...");
+  
+  const mockHR = 145;     // Severe Tachycardia
+  const mockSpO2 = 84;   // Severe Hypoxia
+  const mockTemp = 40;   // High Fever
+
+  // Push critical indicators directly to the web dashboard cards
+  setVitalValue('hr', mockHR, 'bpm', 'warn');
+  setVitalValue('spo2', mockSpO2, '%', 'warn');
+  setVitalValue('temp', mockTemp, '°C', 'warn');
+  
+  if (!automaticEmergencyFired) {
+    automaticEmergencyFired = true;
+    alert("🚨 SIMULATION ALARM:\nMetrics are running out of bounds. Launching emergency handler.");
+    triggerEmergency();
   }
 }
 
