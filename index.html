@@ -721,8 +721,8 @@ Give a brief, warm, practical response: what these symptoms might indicate, whet
   btn.textContent='Analyse Symptoms →';btn.disabled=false;
 }
 
-// 1. Refined Emergency Dialing Action
-function triggerEmergency() {
+// 1. Streamlined Emergency Dialing (Skips confirm popup if forced automatically)
+function triggerEmergency(bypassConfirm = false) {
   if (!userData || !userData.emergency) {
     alert("No emergency contact phone number configured in your profile.");
     return;
@@ -736,8 +736,63 @@ function triggerEmergency() {
     return;
   }
 
-  if (confirm(`🚨 Initiate Emergency call to: ${phoneNumber}?`)) {
+  // If it's an automated trigger, bypass the confirm dialog completely to save time
+  if (bypassConfirm) {
     window.location.href = `tel:${phoneNumber}`;
+  } else {
+    // Regular manual click still gets a confirmation check to prevent accidental dials
+    if (confirm(`🚨 Initiate Emergency call to: ${phoneNumber}?`)) {
+      window.location.href = `tel:${phoneNumber}`;
+    }
+  }
+}
+
+// 2. Automated BLE Reader (Zero alerts, instantly opens phone dialer)
+function onVitalsUpdate(event) {
+  const value = event.target.value;
+  try {
+    const hr = value.getUint8(0);
+    const spo2 = value.getUint8(1);
+    const temp = value.getUint8(2);
+
+    // Update UI Elements live
+    setVitalValue('hr', hr, 'bpm', hr > 100 || hr < 50 ? 'warn' : 'ok');
+    setVitalValue('spo2', spo2, '%', spo2 < 95 ? 'warn' : 'ok');
+    setVitalValue('temp', temp, '°C', temp > 38 || temp < 36 ? 'warn' : 'ok');
+    
+    // Auto-alert check if values are dangerous
+    if (!automaticEmergencyFired) {
+      if (hr > 140 || hr < 40 || spo2 < 88 || temp > 39 || temp < 35) {
+        automaticEmergencyFired = true; 
+        
+        // INSTANT ACTION: No alert popups, goes straight to dialing code!
+        triggerEmergency(true); 
+      }
+    }
+  } catch(e) {
+    console.warn('Failed to parse incoming BLE payload:', e);
+  }
+}
+
+// 3. Emergency Simulation Framework (One alert only just to confirm simulation started)
+function simulateEmergencyVitals() {
+  // We keep this single alert just so you know the simulation button actually registered your click
+  alert("⚠️ Starting Emergency Simulation..."); 
+  
+  const mockHR = 145;     // Severe Tachycardia
+  const mockSpO2 = 84;   // Severe Hypoxia
+  const mockTemp = 40;   // High Fever
+
+  // Push critical indicators directly to the web dashboard cards
+  setVitalValue('hr', mockHR, 'bpm', 'warn');
+  setVitalValue('spo2', mockSpO2, '%', 'warn');
+  setVitalValue('temp', mockTemp, '°C', 'warn');
+  
+  if (!automaticEmergencyFired) {
+    automaticEmergencyFired = true;
+    
+    // Calls the streamlined dial function with confirmation bypassed!
+    triggerEmergency(true); 
   }
 }
 
