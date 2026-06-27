@@ -536,21 +536,21 @@ function forgetBracelet(){
   updateBraceletUI();
 }
 
-function onVitalsUpdate(event){
-  // Parse incoming BLE data and update the dashboard live.
-  // NOTE: byte layout below assumes a standard Heart Rate Measurement
-  // characteristic format as a placeholder. Once the actual bracelet
-  // firmware/protocol is finalised, replace this parsing logic to match
-  // whatever byte structure it actually sends (HR, SpO2, temp, etc).
-  const value=event.target.value;
-  try{
-    const flags=value.getUint8(0);
-    const hr=(flags&0x1)?value.getUint16(1,true):value.getUint8(1);
-    setVitalValue('hr',hr,'bpm',hr>100||hr<50?'warn':'ok');
-    // SpO2 / temperature would be parsed from additional bytes or a
-    // separate characteristic depending on the firmware design.
-  }catch(e){
-    console.warn('Failed to parse vitals payload:',e);
+function onVitalsUpdate(event) {
+  const value = event.target.value;
+  try {
+    // Extract the 3 bytes from the ESP32 data stream
+    const hr = value.getUint8(0);
+    const spo2 = value.getUint8(1);
+    const temp = value.getUint8(2);
+
+    // Update the live dashboard UI instantly
+    setVitalValue('hr', hr, 'bpm', hr > 100 || hr < 50 ? 'warn' : 'ok');
+    setVitalValue('spo2', spo2, '%', spo2 < 95 ? 'warn' : 'ok');
+    setVitalValue('temp', temp, '°C', temp > 38 || temp < 36 ? 'warn' : 'ok');
+    
+  } catch(e) {
+    console.warn('Failed to parse incoming BLE payload:', e);
   }
 }
 
