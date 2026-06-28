@@ -471,7 +471,7 @@ function handleBraceletAction(){
 
 async function connectBracelet(){
   if(!bluetoothSupported()){
-    alert('Bluetooth is not available on this browser/device.\n\nThis works on Chrome or Edge on Android and Desktop.\n\nIt does NOT work on:\n- iPhone — any browser (Safari, Chrome, etc. all run on Apple\'s engine, which blocks this)\n- Firefox — on any device (Mozilla has chosen not to support this feature)\n\nA WiFi-based connection option is planned for broader support.');
+    alert('Bluetooth is not available on this browser/device.\n\nThis works on Chrome or Edge on Android and Desktop.\n\nIt does NOT work on:\n- iPhone — any browser (Safari, Chrome, etc. all run on Apple\'s engine, which blocks this)\n- Firefox — on any device (Mozilla has chosen not to support this feature)\n- A WiFi-based connection option is planned for broader support.');
     return;
   }
 
@@ -496,6 +496,9 @@ async function connectBracelet(){
     braceletConnected=true;
     braceletInfo={name:device.name||'Unknown device',id:device.id};
     try{localStorage.setItem(LS_BRACELET,JSON.stringify(braceletInfo))}catch(e){}
+
+    // SAVES TO CACHE: Tell the application to remember this pairing for auto-reconnection
+    localStorage.setItem('braceletAutoConnect', 'true');
 
     // Try to start listening for live vitals. Falls back silently
     // if this specific characteristic isn't present on this device yet.
@@ -522,6 +525,11 @@ function disconnectBracelet(){
       braceletServer.disconnect();
     }
   }catch(e){}
+  
+  // CLEAR AUTO-CONNECT FLAG: Prevents the app from instantly background-reconnecting 
+  // right after the user explicitly commands a disconnect.
+  try{localStorage.removeItem('braceletAutoConnect')}catch(e){}
+  
   onBraceletDisconnected();
 }
 
@@ -534,13 +542,54 @@ function onBraceletDisconnected(){
 
 function forgetBracelet(){
   if(!confirm('Forget this bracelet device? You will need to pair again next time.'))return;
+  
   disconnectBracelet();
+  
   braceletInfo=null;
   braceletDevice=null;
-  try{localStorage.removeItem(LS_BRACELET)}catch(e){}
+  
+  // WIPE CACHE DETAILS: Clear both the custom bracelet information and the auto-connect flag
+  try{
+    localStorage.removeItem(LS_BRACELET);
+    localStorage.removeItem('braceletAutoConnect');
+  }catch(e){}
+  
   updateBraceletUI();
 }
 
+async function checkAutoConnect() {
+  const shouldAutoConnect = localStorage.getItem('braceletAutoConnect') === 'true';
+  if (!shouldAutoConnect || !navigator.bluetooth.getDevices) return;
+
+  try {
+    const devices = await navigator.bluetooth.getDevices();
+    const savedDevice = devices.find(d => d.name && d.name.includes("HygeiNous"));
+
+    if (savedDevice) {
+      console.log("Cached device detected. Auto-connecting...");
+      braceletDevice = savedDevice;
+      braceletDevice.addEventListener('gattserverdisconnected', onBraceletDisconnected);
+      
+      braceletServer = await braceletDevice.gatt.connect();
+      const service = await braceletServer.getPrimaryService(BRACELET_SERVICE_UUID);
+      const characteristic = await service.getCharacteristic(BRACELET_CHAR_UUID);
+      
+      await characteristic.startNotifications();
+      characteristic.addEventListener('characteristicvaluechanged', onVitalsUpdate);
+      
+      braceletConnected = true;
+      updateBraceletUI();
+    }
+  } catch (e) {
+    console.warn("Background reconnect sequence bypassed:", e);
+  }
+}
+
+// Fire it off inside your DOMContentLoaded handler or at the bottom of the script area
+window.addEventListener('DOMContentLoaded', () => {
+  checkAutoConnect();
+});
+  
 function onVitalsUpdate(event) {
   const value = event.target.value;
   try {
