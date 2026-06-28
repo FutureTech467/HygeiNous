@@ -899,6 +899,7 @@ function resetApp(){
       localStorage.removeItem(LS_USER);
       localStorage.removeItem(LS_TAKEN);
       localStorage.removeItem(LS_BRACELET);
+      localStorage.removeItem('braceletAutoConnect'); // Clear auto-connect flag
     }catch(e){}
     userData=null;chatHistory=[];takenMeds={};selectedSymptoms=[];selectedSeverity='';
     braceletInfo=null;braceletDevice=null;braceletServer=null;braceletConnected=false;
@@ -908,6 +909,50 @@ function resetApp(){
     document.getElementById('screen-onboard').classList.add('active');
   }
 }
+
+/* ===== NEW BACKGROUND AUTO-CONNECT CHECKER ===== */
+async function checkAutoConnect() {
+  const shouldAutoConnect = localStorage.getItem('braceletAutoConnect') === 'true';
+  // Check if browser supports modern getDevices protocol and user requested auto-connect
+  if (!shouldAutoConnect || !navigator.bluetooth || !navigator.bluetooth.getDevices) return;
+
+  try {
+    const devices = await navigator.bluetooth.getDevices();
+    // Look for your previously authorized device
+    const savedDevice = devices.find(d => d.id === braceletInfo?.id || (d.name && d.name.includes("Unknown")));
+
+    if (savedDevice) {
+      console.log("Cached device detected. Auto-connecting...");
+      braceletDevice = savedDevice;
+      braceletDevice.addEventListener('gattserverdisconnected', onBraceletDisconnected);
+      
+      const server = await braceletDevice.gatt.connect();
+      braceletServer = server;
+      
+      try {
+        const service = await server.getPrimaryService(BRACELET_SERVICE_UUID);
+        const characteristic = await service.getCharacteristic(BRACELET_CHAR_UUID);
+        await characteristic.startNotifications();
+        characteristic.addEventListener('characteristicvaluechanged', onVitalsUpdate);
+      } catch (e) {
+        console.warn("Could not auto-subscribe to vitals characteristic:", e);
+      }
+      
+      braceletConnected = true;
+      updateBraceletUI();
+    }
+  } catch (e) {
+    console.warn("Background auto-reconnect sequence bypassed:", e);
+  }
+}
+
+// Automatically trigger background reconnection handler as soon as the app finishes initializing
+window.addEventListener('DOMContentLoaded', () => {
+  // If user profile is loaded, check for automatic device pairing
+  if (userData) {
+    checkAutoConnect();
+  }
+});
 </script>
 </body>
 </html>
